@@ -1,2 +1,2 @@
 # electron-chat
-Imitate wechat by electron.
+Imitate WeChat by electron.
