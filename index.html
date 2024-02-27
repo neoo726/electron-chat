@@ -2,21 +2,41 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+    <!-- Content Security Policy -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self'"
+      content="default-src 'self'; script-src 'self' 'unsafe-inline';"
     />
+    <!-- X-Content-Security-Policy -->
     <meta
       http-equiv="X-Content-Security-Policy"
-      content="default-src 'self'; script-src 'self'"
+      content="default-src 'self'; script-src 'self' 'unsafe-inline';"
     />
-    <title>Hello from Electron renderer!</title>
+    <title>Simulate!</title>
+    
   </head>
   <body>
-    <h1>Hello from Electron renderer!</h1>
-    <p>👋</p>
-    <p id="info"></p>
+    <h1>WebDv Simulator!</h1>
+    <h2>Connect to Redis</h2>
+    <label for="redisAddress">Address:</label>
+    <input type="text" id="redisAddress" name="redisAddress" /><br />
+    <label for="redisPort">Port:</label>
+    <input type="text" id="redisPort" name="redisPort" /><br />
+    <label for="redisDB">Database Number:</label>
+    <input type="text" id="redisDB" name="redisDB" /><br />
+    <button id="testRedisConnection">Test Connection</button>
+    <h2>Expression Evaluation</h2>
+    <label for="Port Name">Port Name:</label>
+    <input type="text" id="portName" name="portName" /><br />
+    <label for="Machine Name">Machine Name:</label>
+    <input type="text" id="machineName" name="machineName" /><br />
+    <label for="Tag Name">Tag Name:</label>
+    <input type="text" id="tagName" name="tagName" style="width: 300px;" /><br />
+    <button id="startEvaluation">Start</button>
+
+    <label >Tag Value:</label>
+    <label id="tagValue" name="tagValue">null</label>
+    <p id="result"></p>
+    <script src="./renderer.js"></script>
   </body>
-  <script src="./renderer.js"></script>
 </html>
