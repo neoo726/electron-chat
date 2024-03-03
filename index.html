@@ -12,31 +12,85 @@
       http-equiv="X-Content-Security-Policy"
       content="default-src 'self'; script-src 'self' 'unsafe-inline';"
     />
-    <title>Simulate!</title>
+   
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+     <!-- Pico.css -->
+     <link
+     rel="stylesheet"
+     href="css/pico.min.css"
+   />
+    <title>Tester</title>
     
   </head>
   <body>
-    <h1>WebDv Simulator!</h1>
-    <h2>Connect to Redis</h2>
-    <label for="redisAddress">Address:</label>
-    <input type="text" id="redisAddress" name="redisAddress" /><br />
-    <label for="redisPort">Port:</label>
-    <input type="text" id="redisPort" name="redisPort" /><br />
-    <label for="redisDB">Database Number:</label>
-    <input type="text" id="redisDB" name="redisDB" /><br />
-    <button id="testRedisConnection">Test Connection</button>
-    <h2>Expression Evaluation</h2>
-    <label for="Port Name">Port Name:</label>
-    <input type="text" id="portName" name="portName" /><br />
-    <label for="Machine Name">Machine Name:</label>
-    <input type="text" id="machineName" name="machineName" /><br />
-    <label for="Tag Name">Tag Name:</label>
-    <input type="text" id="tagName" name="tagName" style="width: 300px;" /><br />
-    <button id="startEvaluation">Start</button>
+    <!-- <header class="container">
+      <hgroup>
+        <h1>Tester</h1>
+        <p>Rest data simulate</p>
+      </hgroup>
 
-    <label >Tag Value:</label>
-    <label id="tagValue" name="tagValue">null</label>
-    <p id="result"></p>
+    </header> -->
+    <main class="container">
+      
+     <form id="form">
+      <div class="grid">
+        <input type="text" name="restIp" placeholder="rest ip" aria-label="rest" required value="10.128.231.141" />
+        <input type="text" name="restPort" placeholder="rest port" aria-label="rest" required value="31082"/>
+        
+      </div>
+      <div class="grid">
+        <input type="text" name="portName" placeholder="port name" aria-label="rest" required value="WebDV"/>
+        <input type="text" name="machineName" placeholder="machine name" aria-label="rest" required value="ROS01"/>
+      </div>
+      <div class="grid">
+        <input type="text" name="tagName" placeholder="tag name" aria-label="rest" required value="DV_ROS.ROS.ROS.EXR_CraneID_FB"/>
+        <input type="text" id="writeValue" name="writeValue" placeholder="write value" aria-label="rest" required value="0"/>
+
+       
+      </div>
+      <div class="grid">
+        <button type="submit">read</button>
+        <button type="submit">write</button>
+      </div>
+      <div class="grid">
+        <label for="terms">
+          <input type="checkbox" role="switch" id="terms" name="terms" />
+          Continuous reading
+        </label>
+        <button type="submit">write by 0-1-0-1</button>
+      </div>
+      <div class="grid">  
+        <p ></p>
+
+        <button type="submit">stop</button>
+      </div>
+     </form>
+      <fieldset>
+        
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Tag</th>
+              <th scope="col">Value</th>
+              <th scope="col">Quality</th>
+              <th scope="col">Count</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td >Mercury</th>
+              <td>4,880</td>
+              <td>0.39</td>
+              <td>88</td>
+            </tr>
+            
+          </tbody>
+         
+        </table>
+      </fieldset>
+    </main>
+    
     <script src="./renderer.js"></script>
   </body>
 </html>
