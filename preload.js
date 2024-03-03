@@ -26,5 +26,8 @@ contextBridge.exposeInMainWorld('api',{
    writeTagValue:(host,port,portName,machineName,tagName,dataType,tagValue)=>ipcRenderer.invoke('writeTagValue',host,port,portName,machineName,tagName,dataType,tagValue),
    writeTagValueByInterval:(host,port,portName,machineName,tagName,interval)=>ipcRenderer.invoke('writeTagValueByInterval',host,port,portName,machineName,tagName,interval),
 
-   onUpdateTagValue: (callback)=>ipcRenderer.on('updateTagValuee',(_event,tagName,tagValue,tagQuality)=>callback(tagName,tagValue,tagQuality))
+   onUpdateTagValue: (callback)=>ipcRenderer.on('updateTagValuee',(_event,tagName,tagValue,tagQuality)=>callback(tagName,tagValue,tagQuality)),
+
+   startTaskSimulate:(host,port,portName,machineName,tpos,hpos,spdLock,spdUnlock,spd20,spd40,spd45,spd2020,rosCraneIdFb)=>ipcRenderer.invoke('startTaskSimulate',host,port,portName,machineName,tpos,hpos,spdLock,spdUnlock,spd20,spd40,spd45,spd2020,rosCraneIdFb),
+
 })

@@ -3,6 +3,7 @@ const path = require('node:path')
 const redis=require('redis');
 const axios=require('axios')
 const { dialog } = require('electron');
+const { isatty } = require('node:tty');
 
 let win;
 const createWindow = () => {
@@ -17,6 +18,19 @@ const createWindow = () => {
 }
 let intervalReadId;
 let intervalWriteId;
+async function readTagValue(host, port, portName, machineName, tagName) {
+  const url = `http://${host}:${port}/v1/item/value/${tagName}?portName=${portName}&machineryName=${machineName}`;
+  try {
+    const response = await axios.get(url);
+    const {  value, quality } = response.data;
+    const valueField = `${value.dataType}Val`;
+    const realValue = value[valueField].value;
+    return { quality:quality, value: realValue };
+  } catch (error) {
+    console.error('Error fetching tag value:', error);
+    return { quality: null, value: null };
+  }
+}
 async function fetchTagValue(event, host, port, portName, machineName, tagName) {
   const url = `http://${host}:${port}/v1/item/value/${tagName}?portName=${portName}&machineryName=${machineName}`;
   try {
@@ -36,6 +50,25 @@ async function fetchTagValue(event, host, port, portName, machineName, tagName) 
       clearInterval(intervalWriteId);
     }
   });
+}
+async function writeTagValue(event,host,port,portName,machineName,tagName,dataType,tagValue){
+  const url = `http://${host}:${port}/v1/item/value/${tagName}?portName=${portName}&machineryName=${machineName}&sync=1`;
+  const filedName=`${dataType}Val`;
+  const payload = {
+      isArray: false,
+      dataType: dataType,
+      [filedName]: {
+          value: tagValue
+      }
+    }
+
+  try {
+      const response = await axios.put(url, payload);
+      return response.data;
+  } catch (error) {
+      console.error('Error writing tag value:', error);
+      return { error: error.message };
+  }
 }
 app.whenReady().then(() => {
   ipcMain.handle('readTagValue',fetchTagValue)
@@ -78,25 +111,7 @@ app.whenReady().then(() => {
       
     });
   })
-  async function writeTagValue(event,host,port,portName,machineName,tagName,dataType,tagValue){
-    const url = `http://${host}:${port}/v1/item/value/${tagName}?portName=${portName}&machineryName=${machineName}&sync=1`;
-    const filedName=`${dataType}Val`;
-    const payload = {
-        isArray: false,
-        dataType: dataType,
-        [filedName]: {
-            value: tagValue
-        }
-      }
-
-    try {
-        const response = await axios.put(url, payload);
-        return response.data;
-    } catch (error) {
-        console.error('Error writing tag value:', error);
-        return { error: error.message };
-    }
-  }
+  
   ipcMain.handle('writeTagValue',writeTagValue)
   // ipcMain.handle('writeTagValue',async (event,host,port,portName,machineName,tagName,dataType,tagValue)=>{
   //   const url = `http://${host}:${port}/v1/item/value/${tagName}?portName=${portName}&machineryName=${machineName}&sync=1`;
@@ -144,19 +159,57 @@ app.whenReady().then(() => {
       clearInterval(intervalReadId);
     }
   })
-  
+  ipcMain.handle('startTaskSimulate',async (event,host,port,portName,machineName,tpos,hpos,spdLock,spdUnlock,spd20,spd40,spd45,spd2020,rosCraneIdFb)=>{
+    GenerateTaskOnce(host,port,portName,machineName,tpos,hpos,spdLock,spdUnlock,spd20,spd40,spd45,spd2020,rosCraneIdFb)
+  })
   createWindow()
-
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
       createWindow()
     }
   })
 })
-
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
       app.quit()
     }
   })
-  console.log(process.platform)
+console.log(process.platform)
+//randorm generate unload / load 
+async function GenerateTaskOnce(host,port,portName,machineName,tpos,hpos,spdLock,spdUnlock,spd20,spd40,spd45,spd2020,rosCraneIdFb){
+   const randomNum=Math.random();
+   if(randomNum<0.5){
+     //装船
+     //起升小车位置为0，闭锁，吊具尺寸20
+     await writeTagValue(null,host, port, portName, machineName, tpos,'int16', 0)
+     await writeTagValue(null,host, port, portName, machineName, hpos,'int16', 0)
+     await writeTagValue(null,host, port, portName, machineName, spdLock,'bool',true)
+     await writeTagValue(null,host, port, portName, machineName, spdUnlock,'bool',false)
+     await writeTagValue(null,host, port, portName, machineName, spd20,'bool',true)
+     //起升平滑上升到40米
+     await async(()=>{
+       let isArrived=false;
+       while(!isArrived){
+         let curHpos=readTagValue(host,port,portName,machineName,hpos);
+         if(curHpos>=40000){
+          isArrived=true;
+          break;
+         }
+         let newHpos = curHpos + 1000;
+         writeTagValue(null, host, port, portName, machineName, hpos, 'int16', newHpos);
+       }
+     })
+     //小车平滑移动到60米
+
+     //起升平滑下降到10米
+
+     //吊具开锁
+     await new Promise(resolve => setTimeout(resolve, 1000)); // 等待一秒钟
+     writeTagValue(null,host, port, portName, machineName, spdLock,'bool',false)
+     writeTagValue(null,host, port, portName, machineName, spdUnlock,'bool',true)
+     //起升平滑上升至40米     
+   }
+   else{
+    //upload
+   }
+}

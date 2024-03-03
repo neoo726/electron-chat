@@ -32,8 +32,8 @@
 
     </header> -->
     <main class="container">
-      
-     <form id="form">
+     <h1>Simple Test</h1>
+     <form id="simpleForm">
       <div class="grid">
         <input type="text" name="restIp" placeholder="rest ip" aria-label="rest" required value="10.128.231.141" />
         <input type="text" name="restPort" placeholder="rest port" aria-label="rest" required value="31082"/>
@@ -67,7 +67,6 @@
       </div>
      </form>
       <fieldset>
-        
         <table>
           <thead>
             <tr>
@@ -84,11 +83,81 @@
               <td>0.39</td>
               <td>88</td>
             </tr>
-            
           </tbody>
-         
         </table>
       </fieldset>
+      <h1>Task Test</h1>
+      <form id="taskForm">
+       <h4>Rest URL Setting</h4>
+       <div class="grid">
+        <label>Rest IP</label>          
+        <label>Rest Port</label>
+      </div>
+       <div class="grid">
+        <input type="text" name="restIp" placeholder="rest ip" aria-label="rest" required value="10.128.231.141" />
+        <input type="text" name="restPort" placeholder="rest port" aria-label="rest" required value="31082"/>
+        
+      </div>
+      <div class="grid">
+        <label>Port Name</label>          
+        <label>Machine Name</label>
+      </div>
+      <div class="grid">
+        <input type="text" name="portName" placeholder="port name" aria-label="rest" required value="WebDV"/>
+        <input type="text" name="machineName" placeholder="machine name" aria-label="rest" required value="ROS01"/>
+      </div>
+
+      <h4>Crane Tag Setting</h4>
+       <div >
+        <div class="grid">
+          <label>Main Trolley Pos</label>          
+          <label>Main Hoist Pos</label>
+        </div>
+        <div class="grid">
+          <input type="text" name="trolleyPos" placeholder="trolley pos tag"  aria-label="rest" required value="DV_ROS.ROS.Crane.EXL_Trolley_POS" />
+          <input type="text" name="hoistPos" placeholder="hoist pos tag" aria-label="rest" required value="DV_ROS.ROS.Crane.EXL_Hoist_POS"/>   
+        </div>
+       </div>
+       <div >
+        <div class="grid">
+          <label>Main Spreader Lock</label>          
+          <label>Main Spreader Unlock</label>
+        </div>
+        <div class="grid">
+          <input type="text" name="spreaderLock" placeholder="spreader lock tag"  aria-label="rest" required value="DV_ROS.ROS.Crane.EXL_Trolley_POS" />
+          <input type="text" name="spreaderUnlock" placeholder="spreader unlock tag" aria-label="rest" required value="DV_ROS.ROS.Crane.EXL_Hoist_POS"/>   
+        </div>
+        <div >
+          <div class="grid">
+            <label>Main Spreader 20 </label>          
+            <label>Main Spreader 40</label>
+          </div>
+          <div class="grid">
+            <input type="text" name="spreader20" placeholder="spreader 20 tag"  aria-label="rest" required value="DV_ROS.ROS.Crane.EXL_SPD_20" />
+            <input type="text" name="spreader40" placeholder="spreader 40 tag" aria-label="rest" required value="DV_ROS.ROS.Crane.EXL_SPD_40"/>   
+          </div>
+       </div>
+       <div >
+        <div class="grid">
+          <label>Main Spreader 45 </label>          
+          <label>Main Spreader 2020</label>
+        </div>
+        <div class="grid">
+          <input type="text" name="spreader45" placeholder="spreader 45 tag"  aria-label="rest" required value="DV_ROS.ROS.Crane.EXL_SPD_45" />
+          <input type="text" name="spreader2020" placeholder="spreader 2020 tag" aria-label="rest" required value="DV_ROS.ROS.Crane.EXL_SPD_2020"/>   
+        </div>
+     </div>
+     <h4>Ros Tag Setting</h4>
+     <div >
+      <div class="grid">
+        <label>Ros crane id feedback</label>   
+      </div>
+      <div class="grid">
+        <input type="text" name="rosCraneIdFeedback" placeholder="ros craneid feedback tag"  aria-label="rest" required value="DV_ROS.ROS.ROS.EXR_CraneID_FB" />
+      </div>
+     </div>
+     <button type="submit">Start simulate task</button>
+      </form>
     </main>
     
     <script src="./renderer.js"></script>

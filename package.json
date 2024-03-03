@@ -1,6 +1,6 @@
 {
-  "name": "electron-chat",
-  "version": "1.0.0",
+  "name": "electron-tester",
+  "version": "0.1.1",
   "description": "Imitate WeChat by electron.",
   "main": "main.js",
   "scripts": {
@@ -26,7 +26,12 @@
     "redis": "^4.6.13"
   },
   "devDependencies": {
-    "@electron-forge/cli": "^7.2.0",
+    "@electron-forge/cli": "^7.3.0",
+    "@electron-forge/maker-deb": "^7.3.0",
+    "@electron-forge/maker-rpm": "^7.3.0",
+    "@electron-forge/maker-squirrel": "^7.3.0",
+    "@electron-forge/maker-zip": "^7.3.0",
+    "@electron-forge/plugin-auto-unpack-natives": "^7.3.0",
     "electron": "^28.2.1"
   }
 }

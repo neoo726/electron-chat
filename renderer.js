@@ -70,11 +70,11 @@ console.log("获取按钮和输入框元素");
 
 
 
-const form=document.querySelector('form');
-
-form.addEventListener('submit',async(e)=>{
+const simpleForm=document.querySelector('#simpleForm');
+const taskForm=document.querySelector('#taskForm');
+simpleForm.addEventListener('submit',async(e)=>{
   e.preventDefault();
-  const formData=new FormData(form);
+  const formData=new FormData(simpleForm);
   const restIp=formData.get('restIp');
   const restPort=formData.get('restPort');
   const portName=formData.get('portName');
@@ -115,3 +115,29 @@ window.api.onUpdateTagValue((tagName, tagValue, tagQuality) => {
   });
   //document.getElementById('writeValue').textContent = tagValue;
 });
+
+//task form
+taskForm.addEventListener('submit',async(e)=>{
+  e.preventDefault();
+  const formData=new FormData(taskForm);
+  const restIp=formData.get('restIp');
+  const restPort=formData.get('restPort');
+  const portName=formData.get('portName');
+  const machineName=formData.get('machineName');
+
+  const trolleyPosTag=formData.get('trolleyPos');
+  const hoistPosTag=formData.get('hoistPos');
+  const spreaderLockTag=formData.get('spreaderLock');
+  const spreaderUnlockTag=formData.get('spreaderUnlock');
+  const spreader20Tag=formData.get('spreader20');
+  const spreader40Tag=formData.get('spreader40');
+  const spreader45Tag=formData.get('spreader45');
+  const spreader2020Tag=formData.get('spreader2020');
+
+  const rosCraneIDFBTag=formData.get('rosCraneIdFeedback');
+
+  console.log(restIp);
+
+  window.api.startTaskSimulate(restIp,restPort,portName,machineName,trolleyPosTag,hoistPosTag,spreaderLockTag,spreaderUnlockTag,spreader20Tag,spreader40Tag,spreader45Tag,spreader2020Tag,rosCraneIDFBTag);
+
+})
