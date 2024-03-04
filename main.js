@@ -51,18 +51,19 @@ async function fetchTagValue(event, host, port, portName, machineName, tagName) 
     }
   });
 }
-async function writeTagValue(event,host,port,portName,machineName,tagName,dataType,tagValue){
+async function writeTagValue(event,host,port,portName,machineName,tagName,curDataType,tagValue){
   const url = `http://${host}:${port}/v1/item/value/${tagName}?portName=${portName}&machineryName=${machineName}&sync=1`;
-  const filedName=`${dataType}Val`;
+  const filedName=`${curDataType}Val`;
   const payload = {
       isArray: false,
-      dataType: dataType,
+      dataType: curDataType,
       [filedName]: {
           value: tagValue
       }
     }
 
   try {
+      console.log(payload)
       const response = await axios.put(url, payload);
       return response.data;
   } catch (error) {
@@ -159,8 +160,19 @@ app.whenReady().then(() => {
       clearInterval(intervalReadId);
     }
   })
-  ipcMain.handle('startTaskSimulate',async (event,host,port,portName,machineName,tpos,hpos,spdLock,spdUnlock,spd20,spd40,spd45,spd2020,rosCraneIdFb)=>{
+  let isSimulateExecuting=false;
+  //模拟一次完整装船过程
+  ipcMain.handle('startTaskSimulateOnce',async (event,host,port,portName,machineName,tpos,hpos,spdLock,spdUnlock,spd20,spd40,spd45,spd2020,rosCraneIdFb)=>{
     GenerateTaskOnce(host,port,portName,machineName,tpos,hpos,spdLock,spdUnlock,spd20,spd40,spd45,spd2020,rosCraneIdFb)
+  })
+  //持续模拟装船过程
+  ipcMain.handle('startTaskSimulate',async (event,host,port,portName,machineName,tpos,hpos,spdLock,spdUnlock,spd20,spd40,spd45,spd2020,rosCraneIdFb)=>{
+    while(isSimulateExecuting){
+      GenerateTaskOnce(host,port,portName,machineName,tpos,hpos,spdLock,spdUnlock,spd20,spd40,spd45,spd2020,rosCraneIdFb)
+    }
+  })
+  ipcMain.handle('stopTaskSimulate',async (event,host,port,portName,machineName,tpos,hpos,spdLock,spdUnlock,spd20,spd40,spd45,spd2020,rosCraneIdFb)=>{
+    isSimulateExecuting=false;
   })
   createWindow()
   app.on('activate', () => {
@@ -178,14 +190,14 @@ console.log(process.platform)
 //randorm generate unload / load 
 async function GenerateTaskOnce(host,port,portName,machineName,tpos,hpos,spdLock,spdUnlock,spd20,spd40,spd45,spd2020,rosCraneIdFb){
    const randomNum=Math.random();
-   //装船
+     //装船
      //起升小车位置为0，闭锁，吊具尺寸20
      const writePromise=[]
      if(tpos){
-      writePromise.push(writeTagValue(null,host, port, portName, machineName, tpos,'int16', 0));
+      writePromise.push(writeTagValue(null,host, port, portName, machineName, tpos,'int16', 10));
      }
      if(hpos){
-      writePromise.push(writeTagValue(null,host, port, portName, machineName, hpos,'int16', 0));
+      writePromise.push(writeTagValue(null,host, port, portName, machineName, hpos,'int16', 10));
 
      }
      writePromise.push(writeTagValue(null,host, port, portName, machineName, spdLock,'bool',true));
@@ -193,82 +205,81 @@ async function GenerateTaskOnce(host,port,portName,machineName,tpos,hpos,spdLock
      writePromise.push(writeTagValue(null,host, port, portName, machineName, spd20,'bool',true));
      await Promise.all(writePromise);
      //起升平滑上升到40米
-     await async(()=>{
-       try{
-        let isArrived=false;
-        while(!isArrived){
-         let curHpos=readTagValue(host,port,portName,machineName,hpos);
-         if(curHpos>=40000){
-          isArrived=true;
-          break;
-         }
-         let newHpos = curHpos + 1000;
-         writeTagValue(null, host, port, portName, machineName, hpos, 'int16', newHpos);
-       }
-       }
-       catch(error){
-         console.error(error);
-       }
-     })
+     await  smoothRisingToHeight(host, port, portName, machineName, hpos, 4000);
      //小车平滑移动到60米
      await new Promise(resolve => setTimeout(resolve, 1000)); // 等待一秒钟
-     await async(()=>{
-      try{
-       let isArrived=false;
-       while(!isArrived){
-        let curTpos=readTagValue(host,port,portName,machineName,tpos);
-        if(curTpos>=60000){
-         isArrived=true;
-         break;
-        }
-        let newTpos = curTpos + 1000;
-        writeTagValue(null, host, port, portName, machineName, tpos, 'int16', newTpos);
-      }
-      }
-      catch(error){
-        console.error(error);
-      }
-    })
+     await smoothMovingToPosition(host, port, portName, machineName, tpos, 6000);
      //起升平滑下降到10米
      await new Promise(resolve => setTimeout(resolve, 1000)); // 等待一秒钟
-     await async(()=>{
-      try{
-       let isArrived=false;
-       while(!isArrived){
-        let curHpos=readTagValue(host,port,portName,machineName,hpos);
-        if(curHpos<=10000){
-         isArrived=true;
-         break;
-        }
-        let newHpos = curHpos - 1000;
-        writeTagValue(null, host, port, portName, machineName, hpos, 'int16', newHpos);
-      }
-      }
-      catch(error){
-        console.error(error);
-      }
-    })
+     await smoothDescendingToHeight(host, port, portName, machineName, hpos, 1000)
      //吊具开锁
      await new Promise(resolve => setTimeout(resolve, 1000)); // 等待一秒钟
      writeTagValue(null,host, port, portName, machineName, spdLock,'bool',false)
      writeTagValue(null,host, port, portName, machineName, spdUnlock,'bool',true)
      //起升平滑上升至40米
      await new Promise(resolve => setTimeout(resolve, 1000)); // 等待一秒钟
-     await async(()=>{
-      try{
-       let isArrived=false;
-       while(!isArrived){
-        let curHpos=readTagValue(host,port,portName,machineName,hpos);
-        if(curHpos>=40000){
-         isArrived=true;
-         break;
-        }
-        let newHpos = curHpos + 1000;
-        writeTagValue(null, host, port, portName, machineName, hpos, 'int16', newHpos);
+     await smoothRisingToHeight(host, port, portName, machineName, hpos, 4000);
+}
+async function smoothRisingToHeight(host, port, portName, machineName, hpos, targetHeight) {
+  try {
+    let isArrived = false;
+    while (!isArrived) {
+      let curHpos = await readTagValue(host, port, portName, machineName, hpos);
+      if(!curHpos.value){
+        curHpos.value=100;
       }
+      if (curHpos.value >= targetHeight) {
+        isArrived = true;
+        break;
       }
-      catch(error){
-        console.error(error);
+      
+      let newHpos = curHpos.value + 500;
+      await writeTagValue(null, host, port, portName, machineName, hpos, 'int16', newHpos);
+      await new Promise(resolve => setTimeout(resolve, 200)); // 等待一秒钟
+    }
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+async function smoothMovingToPosition(host, port, portName, machineName, tpos, targetPosition) {
+  // 实现小车平滑移动到指定位置的逻辑
+  try{
+    let isArrived=false;
+    while(!isArrived){
+     let curTpos=await readTagValue(host,port,portName,machineName,tpos);
+     if(!curTpos.value){
+        curTpos.value=100;
       }
-    })
+     if(curTpos.value>=targetPosition){
+      isArrived=true;
+      break;
+     }
+     let newTpos = curTpos.value + 500;
+     writeTagValue(null, host, port, portName, machineName, tpos, 'int16', newTpos);
+     await new Promise(resolve => setTimeout(resolve, 200)); // 等待一秒钟
+   }
+   }
+   catch(error){
+     console.error(error);
+   }
+}
+
+async function smoothDescendingToHeight(host, port, portName, machineName, hpos, targetHeight) {
+  // 实现起升平滑下降到指定高度的逻辑
+  try {
+    let isArrived = false;
+    while (!isArrived) {
+      let curHpos = await readTagValue(host, port, portName, machineName, hpos);
+      if (curHpos.value <= targetHeight) {
+        isArrived = true;
+        break;
+      }
+      let newHpos = curHpos.value - 500;
+      await writeTagValue(null, host, port, portName, machineName, hpos, 'int16', newHpos);
+      await new Promise(resolve => setTimeout(resolve, 200)); // 等待一秒钟
+    }
+  } catch (error) {
+    console.error(error);
+  }
 }

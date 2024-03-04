@@ -28,6 +28,8 @@ contextBridge.exposeInMainWorld('api',{
 
    onUpdateTagValue: (callback)=>ipcRenderer.on('updateTagValuee',(_event,tagName,tagValue,tagQuality)=>callback(tagName,tagValue,tagQuality)),
 
+   startTaskSimulateOnce:(host,port,portName,machineName,tpos,hpos,spdLock,spdUnlock,spd20,spd40,spd45,spd2020,rosCraneIdFb)=>ipcRenderer.invoke('startTaskSimulateOnce',host,port,portName,machineName,tpos,hpos,spdLock,spdUnlock,spd20,spd40,spd45,spd2020,rosCraneIdFb),
    startTaskSimulate:(host,port,portName,machineName,tpos,hpos,spdLock,spdUnlock,spd20,spd40,spd45,spd2020,rosCraneIdFb)=>ipcRenderer.invoke('startTaskSimulate',host,port,portName,machineName,tpos,hpos,spdLock,spdUnlock,spd20,spd40,spd45,spd2020,rosCraneIdFb),
+   stopTaskSimulate: ()=>ipcRenderer.invoke('stopTaskSimulate'),
 
 })
