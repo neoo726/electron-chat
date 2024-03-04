@@ -178,18 +178,25 @@ console.log(process.platform)
 //randorm generate unload / load 
 async function GenerateTaskOnce(host,port,portName,machineName,tpos,hpos,spdLock,spdUnlock,spd20,spd40,spd45,spd2020,rosCraneIdFb){
    const randomNum=Math.random();
-   if(randomNum<0.5){
-     //装船
+   //装船
      //起升小车位置为0，闭锁，吊具尺寸20
-     await writeTagValue(null,host, port, portName, machineName, tpos,'int16', 0)
-     await writeTagValue(null,host, port, portName, machineName, hpos,'int16', 0)
-     await writeTagValue(null,host, port, portName, machineName, spdLock,'bool',true)
-     await writeTagValue(null,host, port, portName, machineName, spdUnlock,'bool',false)
-     await writeTagValue(null,host, port, portName, machineName, spd20,'bool',true)
+     const writePromise=[]
+     if(tpos){
+      writePromise.push(writeTagValue(null,host, port, portName, machineName, tpos,'int16', 0));
+     }
+     if(hpos){
+      writePromise.push(writeTagValue(null,host, port, portName, machineName, hpos,'int16', 0));
+
+     }
+     writePromise.push(writeTagValue(null,host, port, portName, machineName, spdLock,'bool',true));
+     writePromise.push(writeTagValue(null,host, port, portName, machineName, spdUnlock,'bool',false));
+     writePromise.push(writeTagValue(null,host, port, portName, machineName, spd20,'bool',true));
+     await Promise.all(writePromise);
      //起升平滑上升到40米
      await async(()=>{
-       let isArrived=false;
-       while(!isArrived){
+       try{
+        let isArrived=false;
+        while(!isArrived){
          let curHpos=readTagValue(host,port,portName,machineName,hpos);
          if(curHpos>=40000){
           isArrived=true;
@@ -198,18 +205,70 @@ async function GenerateTaskOnce(host,port,portName,machineName,tpos,hpos,spdLock
          let newHpos = curHpos + 1000;
          writeTagValue(null, host, port, portName, machineName, hpos, 'int16', newHpos);
        }
+       }
+       catch(error){
+         console.error(error);
+       }
      })
      //小车平滑移动到60米
-
+     await new Promise(resolve => setTimeout(resolve, 1000)); // 等待一秒钟
+     await async(()=>{
+      try{
+       let isArrived=false;
+       while(!isArrived){
+        let curTpos=readTagValue(host,port,portName,machineName,tpos);
+        if(curTpos>=60000){
+         isArrived=true;
+         break;
+        }
+        let newTpos = curTpos + 1000;
+        writeTagValue(null, host, port, portName, machineName, tpos, 'int16', newTpos);
+      }
+      }
+      catch(error){
+        console.error(error);
+      }
+    })
      //起升平滑下降到10米
-
+     await new Promise(resolve => setTimeout(resolve, 1000)); // 等待一秒钟
+     await async(()=>{
+      try{
+       let isArrived=false;
+       while(!isArrived){
+        let curHpos=readTagValue(host,port,portName,machineName,hpos);
+        if(curHpos<=10000){
+         isArrived=true;
+         break;
+        }
+        let newHpos = curHpos - 1000;
+        writeTagValue(null, host, port, portName, machineName, hpos, 'int16', newHpos);
+      }
+      }
+      catch(error){
+        console.error(error);
+      }
+    })
      //吊具开锁
      await new Promise(resolve => setTimeout(resolve, 1000)); // 等待一秒钟
      writeTagValue(null,host, port, portName, machineName, spdLock,'bool',false)
      writeTagValue(null,host, port, portName, machineName, spdUnlock,'bool',true)
-     //起升平滑上升至40米     
-   }
-   else{
-    //upload
-   }
+     //起升平滑上升至40米
+     await new Promise(resolve => setTimeout(resolve, 1000)); // 等待一秒钟
+     await async(()=>{
+      try{
+       let isArrived=false;
+       while(!isArrived){
+        let curHpos=readTagValue(host,port,portName,machineName,hpos);
+        if(curHpos>=40000){
+         isArrived=true;
+         break;
+        }
+        let newHpos = curHpos + 1000;
+        writeTagValue(null, host, port, portName, machineName, hpos, 'int16', newHpos);
+      }
+      }
+      catch(error){
+        console.error(error);
+      }
+    })
 }
