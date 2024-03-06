@@ -31,5 +31,13 @@ contextBridge.exposeInMainWorld('api',{
    startTaskSimulateOnce:(host,port,portName,machineName,tpos,hpos,spdLock,spdUnlock,spd20,spd40,spd45,spd2020,rosCraneIdFb)=>ipcRenderer.invoke('startTaskSimulateOnce',host,port,portName,machineName,tpos,hpos,spdLock,spdUnlock,spd20,spd40,spd45,spd2020,rosCraneIdFb),
    startTaskSimulate:(host,port,portName,machineName,tpos,hpos,spdLock,spdUnlock,spd20,spd40,spd45,spd2020,rosCraneIdFb)=>ipcRenderer.invoke('startTaskSimulate',host,port,portName,machineName,tpos,hpos,spdLock,spdUnlock,spd20,spd40,spd45,spd2020,rosCraneIdFb),
    stopTaskSimulate: ()=>ipcRenderer.invoke('stopTaskSimulate'),
-
+   many2many: ()=>ipcRenderer.invoke('many2many'),
+   one2one: ()=>ipcRenderer.invoke('one2one'),
+   gantryMove: ()=>ipcRenderer.invoke('gantryMove'),
+   statusSignal: ()=>ipcRenderer.invoke('statusSignal'),
+   boomLatchUpSimulate: ()=>ipcRenderer.invoke('boomLatchUp'),
+   boomLatchDownSimulate: ()=>ipcRenderer.invoke('boomLatchDown'),
+   truckLaneSimulate: ()=>ipcRenderer.invoke('truckLaneSimulate'),
+   platformSimulate: ()=>ipcRenderer.invoke('platformSimulate'),
+   stopSimulate:()=>ipcRenderer.invoke('stopSimulate'),
 })

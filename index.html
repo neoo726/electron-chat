@@ -21,7 +21,7 @@
      href="css/pico.min.css"
    />
     <title>Tester</title>
-    
+
   </head>
   <body>
     <!-- <header class="container">
@@ -32,7 +32,7 @@
 
     </header> -->
     <main class="container">
-     <h1>Simple Test</h1>
+     <!-- <h1>Simple Test</h1>
      <form id="simpleForm">
       <div class="grid">
         <input type="text" name="restIp" placeholder="rest ip" aria-label="rest" required value="10.128.231.141" />
@@ -85,11 +85,11 @@
             </tr>
           </tbody>
         </table>
-      </fieldset>
+      </fieldset> -->
       <h1>Task Test</h1>
       <form id="taskForm">
-       <h4>Rest URL Setting</h4>
-       <div class="grid">
+       <!--<h4>Rest URL Setting</h4>
+        <div class="grid">
         <label>Rest IP</label>          
         <label>Rest Port</label>
       </div>
@@ -155,13 +155,31 @@
       <div class="grid">
         <input type="text" name="rosCraneIdFeedback" placeholder="ros craneid feedback tag"  aria-label="rest" required value="DV_ROS.ROS.ROS.EXR_CraneID_FB" />
       </div>
+     </div> -->
+    <h5 id="currentButton"></h5>
+    <div class="grid">
+      <button type="button" class="grid-item" id="many2manyBtn">many2many</button>
+      <button type="button" class="grid-item" id="one2oneBtn">one2one</button>
+    </div>
+     
+     <div class="grid">
+      <button type="button" class="grid-item" id="gantryMoveBtn">Gantry Move</button>
+      <button type="button" class="grid-item" id="statusSignalBtn">Status Signal Test</button>
+     
      </div>
-     <button type="submit">Start simulate task once</button>
-     <button type="submit">Start simulate task continuously</button>
-     <button type="submit">stop</button>
+     <div class="grid">
+      <button type="button" class="grid-item" id="boomLatchDownBtn">Boom Latch Down</button>
+      <button type="button" class="grid-item" id="boomLatchUpBtn">Boom Latch Up </button>
+     </div>
+     <div class="grid">
+      <button type="button" class="grid-item" id="platformSimulateBtn">Platform Simulate</button>
+      <button type="button" class="grid-item"id="truckLaneSimulateBtn">TruckLane Simulate</button>
+     </div>
+     <div class="grid">
+      <button type="button" class="grid-item" id="stopBtn">stop</button>
+     </div>
       </form>
     </main>
-    
     <script src="./renderer.js"></script>
   </body>
 </html>
