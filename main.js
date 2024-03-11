@@ -3,7 +3,7 @@ const path = require('node:path')
 const redis=require('redis');
 const axios=require('axios')
 const { dialog } = require('electron');
-const { isatty } = require('node:tty');
+const { isatty } = require('node:tty'); 
 
 let win;
 const createWindow = () => {
