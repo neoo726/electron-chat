@@ -41,3 +41,15 @@ contextBridge.exposeInMainWorld('api',{
    platformSimulate: ()=>ipcRenderer.invoke('platformSimulate'),
    stopSimulate:()=>ipcRenderer.invoke('stopSimulate'),
 })
+
+contextBridge.exposeInMainWorld('rest',{
+  restStop: ()=>ipcRenderer.invoke('restStop'),
+  restStart: (port,urls)=>ipcRenderer.invoke('restStart',port,urls),
+ 
+  onRequestReceive: (callback)=>ipcRenderer.on('requestReceive',(_event,requestMsg,returnMsg)=>callback(requestMsg,returnMsg)),
+  createMtTask:()=>ipcRenderer.invoke('createMtTask'),
+  createPtTask:()=>ipcRenderer.invoke('createPtTask'),
+  createQcmsEventTask:()=>ipcRenderer.invoke('createQcmsEvent'),
+  createQcmsExceptionTask:()=>ipcRenderer.invoke('createQcmsException'),
+
+})

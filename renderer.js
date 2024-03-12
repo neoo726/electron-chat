@@ -108,5 +108,123 @@ stopBtn.addEventListener('click',async(e)=>{
   window.api.stopSimulate();
   currentButtonLabel.textContent = '';
 })
-
 //task form
+const startHttpServerBtn=document.getElementById('startHttpServer');
+const stopHttpServer=document.getElementById('stopHttpServer');
+const createMtTask=document.getElementById('createMtTask');
+const createPtTask=document.getElementById('createPtTask');
+const createQcmsEventBtn=document.getElementById('createQcmsEvent');
+const createQcmsExceptionBtn=document.getElementById('createQcmsException');
+startHttpServerBtn.addEventListener('click',async(e)=>{
+  window.rest.restStart(8889,'');
+  startHttpServerBtn.disabled=true;
+  stopRestBtn.disabled=false;
+});
+stopHttpServer.addEventListener('click',async(e)=>{
+  window.rest.restStop();
+  startHttpServerBtn.disabled=false;
+  stopHttpServer.disabled=true;
+})
+createMtTask.addEventListener('click',async(e)=>{
+  window.rest.createMtTask(restPort,'');
+});
+createPtTask.addEventListener('click',async(e)=>{
+  window.rest.createPtTask(restPort,'');
+});
+createQcmsEventBtn.addEventListener('click',async(e)=>{
+  window.rest.createQcmsEventTask();
+});
+createQcmsExceptionBtn.addEventListener('click',async(e)=>{
+  window.rest.createQcmsException();
+});
+// 1. 配置按钮的弹窗功能,获取用户输入的端口号
+const restPortElement = document.getElementById('restPort');
+const addRestBtn=document.getElementById('addRestBtn');
+const startRestBtn=document.getElementById('startRestBtn');
+const stopRestBtn=document.getElementById('stopRestBtn');
+
+restPortElement.textContent='8889';
+let restServerStart=false;
+// 2. 监听请求路由地址列表中地址的双击事件,实现地址的修改功能
+const addressList = document.querySelector('.rest-address-list');
+addRestBtn.addEventListener('click',async(e)=>{
+  const li = document.createElement('li');
+  const input = document.createElement('input');
+  input.className = 'rest-address-input';
+  input.placeholder = 'New address';
+  input.disabled = false;
+  li.appendChild(input);
+  addressList.appendChild(li);
+  
+});
+startRestBtn.addEventListener('click',async(e)=>{
+   const restPort=document.getElementById('restPort').textContent;
+   console.log('restPort='+restPort);
+   const inputs=Array.from(addressList.querySelectorAll('li input'));
+   const textContents=inputs.map(input => input.value);
+   window.rest.restStart(restPort,textContents);
+   startRestBtn.disabled=true;
+   stopRestBtn.disabled=false;
+});
+stopRestBtn.addEventListener('click',async(e)=>{
+  window.rest.restStop();
+  startRestBtn.disabled=false;
+  stopRestBtn.disabled=true;
+});
+function toggleEdit(event) {
+  const input = event.target;
+  if (!input.disabled) {
+    input.disabled = true;
+  } else {
+    input.disabled = false;
+    input.focus();
+  }
+}
+function handleKeyPress(event) {
+  if (event.key === 'Enter') {
+      const input = event.target;
+      input.disabled = true;
+  }
+}
+addressList.addEventListener('dblclick', toggleEdit);
+
+addressList.addEventListener('keypress', handleKeyPress);   
+
+// 3. 实现左上角红色悬浮数字的显示和更新
+let unreadCount = 0;
+const unreadCountElement = document.createElement('span');
+unreadCountElement.style.position = 'absolute';
+unreadCountElement.style.top = '10px';
+unreadCountElement.style.left = '10px';
+unreadCountElement.style.backgroundColor = 'red';
+unreadCountElement.style.color = 'white';
+unreadCountElement.style.padding = '5px';
+unreadCountElement.style.borderRadius = '50%';
+document.body.appendChild(unreadCountElement);
+
+// window.api.onNewRequest(() => {
+//   unreadCount++;
+//   unreadCountElement.textContent = unreadCount;
+// });
+
+// 4. 实现右侧请求地址和监听按钮的功能
+const requestUrlElement = document.getElementById('requestUrl');
+const startListeningBtn = document.querySelector('.rest-right-top button');
+
+let selectedAddress = '';
+addressList.addEventListener('click', (event) => {
+  selectedAddress = event.target.textContent;
+    requestUrlElement.textContent = selectedAddress;
+});
+
+startListeningBtn.addEventListener('click', () => {
+  if (selectedAddress) {
+    // 开始监听请求
+    //window.api.startListening(selectedAddress);
+  }
+});
+
+window.api.onRequestReceive((requestMsg,returnMsg) => {
+  console.log('onRequestReceive.'+`requestMsg: ${requestMsg}, returnMsg: ${returnMsg}`);  
+  //document.getElementById('writeValue').textContent = tagValue;
+});

@@ -4,6 +4,8 @@ const redis=require('redis');
 const axios=require('axios')
 const { dialog } = require('electron');
 const { isatty } = require('node:tty'); 
+const http=require('http')
+const { v4: uuidv4 } = require('uuid');
 
 let win;
 const createWindow = () => {
@@ -14,7 +16,7 @@ const createWindow = () => {
         preload: path.join(__dirname,"preload.js")
     }
   })
-  win.loadFile('index.html')
+  win.loadFile('newindex.html')
 }
 let isStop=false;
 let intervalReadId;
@@ -39,7 +41,18 @@ const sp1LockTag="DV_ROS.ROS.Crane.EXL_SP1_Lock";
 const sp1UnlockTag="DV_ROS.ROS.Crane.EXL_SP1_UnlocK";
 const sp3LockTag="DV_ROS.ROS.Crane.EXL_SP3_Lock";
 const sp3UnlockTag="DV_ROS.ROS.Crane.EXL_SP3_UnlocK";
+//qcms
 const truckLaneTag="QC901.LANE_STATUS";
+const mtCenterCmdTag="QC901.MT_CENTER_COMMAND";
+const mtLeftCmdTag="QC901.MT_LEFT_COMMAND";
+const mtRightCmdTag="QC901.MT_RIGHT_COMMAND";
+const ptCenterCmdTag="QC901.PT_CENTER_COMMAND";
+const ptLeftCmdTag="QC901.PT_LEFT_COMMAND";
+const ptRightCmdTag="QC901.PT_RIGHT_COMMAND";
+const qcmsExceptionTag="QC901.EXCEPTION";
+const qcmsEventInfoTag="QC901.EVENT_INFO";
+const qcmsCraneStatusTag="QC901.CRANE_STATUS";
+
 const gantryPosTag="DV_ROS.ROS.Crane.EXL_GantryPOS";
 const gantryRightTag="DV_ROS.ROS.Crane.EXL_GantryLeft";
 const gantryLeftTag="DV_ROS.ROS.Crane.EXL_GantryRight";
@@ -302,6 +315,58 @@ app.whenReady().then(() => {
   ipcMain.handle('platformSimulate',async ()=>{
     //模拟中转平台
   });
+  let server;
+  //rest其你去
+  ipcMain.handle('restStart',async(event,restPort,urls)=>{
+    if (server) {
+      console.log('Server is already running.');
+      return;
+    }
+    server = http.createServer((req, res) => {
+      let body = '';
+      req.on('data', (chunk) => {
+          body += chunk.toString();
+      });
+      req.on('end', () => {
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          const returnMsg=JSON.stringify({
+            code: 200,
+            data: null,
+            msg: 'Success'
+        });
+          // Here you can process the request and send back the JSON response
+          res.end(returnMsg);
+          win.webContents.send('requestReceive', body, returnMsg);
+      });
+    });
+    server.listen(restPort, () => {
+        console.log(`Server running at http://localhost:${restPort}/`);
+    });
+    return true;
+  });
+  ipcMain.handle('restStop',async()=>{
+    if (server) {
+      server.close(() => {
+          console.log('Server stopped.');
+          server = null;
+      });
+    } else {
+        console.log('Server is not running.');
+    }
+
+    return true;
+  });
+  ipcMain.handle('createMtTask',async()=>{
+     setSingleTaskData(host,port,portName,qcmsMachineName,true)
+     
+  });
+  ipcMain.handle('createPtTask',async()=>{
+    setSingleTaskData(host,port,portName,qcmsMachineName,false)
+    
+ });
+ ipcMain.handle('createQcmsEvent',async()=>{
+    setEventInfoData(host,port,portName,qcmsMachineName);
+ });
   createWindow()
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
@@ -643,6 +708,104 @@ async function setTruckLaneData(host, port, portName, machineName, truckLaneTag,
   try{
     const laneData=generateLaneData(laneNum);
     writeTagValue(null, host, port, portName, machineName, truckLaneTag, 'string', JSON.stringify(laneData),targetMemoryBusName);
+   }
+   catch(error){
+     console.error(error);
+   }
+}
+async function setSingleTaskData(host, port, portName, machineName, isMt) {
+  // 实现小车平滑移动到指定位置的逻辑
+  try{
+    const task={
+       taskId:null,
+       moveKind:null,
+       status:null,
+       containerId:null,
+       truckId:null,
+       laneId:null,
+       position:null,
+       containerOriginLocation:null,
+       containerDestLocation:null,
+    }
+    let leftCmd,centerCmd,rightCmd;
+    const tmpTypeId=Math.floor(Math.random()*3)+1;
+    if(tmpTypeId===1){
+      //left
+      leftCmd=JSON.stringify({
+        taskId:uuidv4(),
+        moveKind:'moveLeft',
+        status:'idle',
+        containerId:null,
+        truckId:null,
+        laneId:null,
+        position:null,
+        containerOriginLocation:null,
+        containerDestLocation:null,
+      });
+      centerCmd=JSON.stringify(task);
+      rightCmd=JSON.stringify(task);
+
+    } else if(tmpTypeId===2){
+      //center
+      centerCmd=JSON.stringify({
+        taskId:uuidv4(),
+        moveKind:'moveLeft',
+        status:'idle',
+        containerId:null,
+        truckId:null,
+        laneId:null,
+        position:null,
+        containerOriginLocation:null,
+        containerDestLocation:null,
+      });
+      leftCmd=JSON.stringify(task);
+      rightCmd=JSON.stringify(task);
+
+    } else if(tmpTypeId===3){
+      //right
+      rightCmd=JSON.stringify({
+        taskId:uuidv4(),
+        moveKind:'moveLeft',
+        status:'idle',
+        containerId:null,
+        truckId:null,
+        laneId:null,
+        position:null,
+        containerOriginLocation:null,
+        containerDestLocation:null,
+      });
+      leftCmd=JSON.stringify(task);
+      centerCmd=JSON.stringify(task);
+    }
+    if(isMt){
+      writeTagValue(null, host, port, portName, machineName, mtCenterCmdTag, 'string', centerCmd,targetMemoryBusName);
+      writeTagValue(null, host, port, portName, machineName, mtLeftCmdTag, 'string', leftCmd,targetMemoryBusName);
+      writeTagValue(null, host, port, portName, machineName, mtRightCmdTag, 'string', rightCmd,targetMemoryBusName);
+
+    }
+    else{
+      writeTagValue(null, host, port, portName, machineName, ptCenterCmdTag, 'string', centerCmd,targetMemoryBusName);
+      writeTagValue(null, host, port, portName, machineName, ptLeftCmdTag, 'string', leftCmd,targetMemoryBusName);
+      writeTagValue(null, host, port, portName, machineName, ptRightCmdTag, 'string', rightCmd,targetMemoryBusName);
+
+    }
+   }
+   catch(error){
+     console.error(error);
+   }
+}
+async function setEventInfoData(host, port, portName, machineName) {
+  // 实现小车平滑移动到指定位置的逻辑
+  try{
+    const task=JSON.stringify({
+      taskId:null,
+      gantry:null,
+      mt:'手动卸船模式，等待主小车吊具抓箱',
+      pt:'等待新的卸船任务',
+      pf:null,
+   })
+    writeTagValue(null, host, port, portName, machineName, qcmsEventInfoTag, 'string', task,targetMemoryBusName);
+
    }
    catch(error){
      console.error(error);

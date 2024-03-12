@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="css/pico.min.css" />
+    <title>Tester</title>
+    <style>
+      .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 150px;
+        background-color: #13171f;
+        
+        padding: 10px;
+      }
+      .sidebar a {
+        display: block; /* 将菜单项改为块级元素,垂直排列 */
+        padding: 15px;
+        text-decoration: none;
+        color: white;
+        background-color: #0172ad;
+      }
+      .sidebar a:hover {
+        background-color: #017fc0;
+      }
+      .content {
+        margin-left: 150px;
+        padding: 20px;
+      }
+      .rest-content {
+        display: flex;
+      }
+
+      .rest-left {
+        width: 40%;
+        padding-right: 20px;
+      }
+
+      .rest-right {
+        width: 70%;
+        padding-left: 20px;
+        border-left: 1px solid #ddd;
+      }
+
+      .rest-right-top {
+        height: 100px;
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 10px;
+      }
+
+      .rest-right-bottom {
+        height: calc(100% - 110px);
+        overflow-y: auto;
+      }
+
+      .rest-address-list {
+        list-style-type: none;
+        padding: 0;
+      }
+
+      .rest-address-list li {
+        padding: 5px;
+        cursor: pointer;
+      }
+
+      .rest-address-list li.active {
+        background-color: #ddd;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="sidebar">
+      <a href="#" id="craneLink">Crane</a>
+      <!-- <a href="#" id="restLink">Rest</a> -->
+    </div>
+
+    <div class="content">
+      <div id="cranePage">
+        <!-- Crane 页面内容 -->
+        <form id="taskForm">
+          <!-- 原有的 Crane 页面按钮等元素 -->
+          <!-- <h1>Task Test</h1> -->
+          <form id="taskForm">
+        <h5 id="currentButton"></h5>
+        <div class="grid">
+            <button type="button" class="grid-item" id="startHttpServer">Start HttpServer</button>
+            <button type="button" class="grid-item" id="stopHttpServer">Stop HttpServer</button>
+            <label>默认端口：8889</label>
+          </div>
+          <div class="grid">
+            <button type="button" class="grid-item" id="createMtTask">Create Mt Task</button>
+            <button type="button" class="grid-item" id="createPtTask">Create Pt Task</button>
+            <label></label>
+          </div>
+          <div class="grid">
+            <button type="button" class="grid-item" id="createQcmsEvent">Qcms Event</button>
+            <button type="button" class="grid-item" id="createQcmsException">Qcms Exception</button>
+            <label></label>
+          </div>
+        <div class="grid">
+          <button type="button" class="grid-item" id="many2manyBtn">many2many</button>
+          <button type="button" class="grid-item" id="one2oneBtn">one2one</button>
+        </div>
+         
+         <div class="grid">
+          <button type="button" class="grid-item" id="gantryMoveBtn">Gantry Move</button>
+          <button type="button" class="grid-item" id="statusSignalBtn">Status Signal Test</button>
+         
+         </div>
+         <div class="grid">
+          <button type="button" class="grid-item" id="boomLatchDownBtn">Boom Latch Down</button>
+          <button type="button" class="grid-item" id="boomLatchUpBtn">Boom Latch Up </button>
+         </div>
+         <div class="grid">
+          <button type="button" class="grid-item" id="platformSimulateBtn">Platform Simulate</button>
+          <button type="button" class="grid-item"id="truckLaneSimulateBtn">TruckLane Simulate</button>
+         </div>
+         <div class="grid">
+          <button type="button" class="grid-item" id="stopBtn">stop</button>
+         </div>
+          </form>
+        </form>
+      </div>
+
+      <div id="restPage" style="display:none;">
+       <!-- Rest 页面内容 -->
+       <div class="rest-content">
+        <div class="rest-left">
+          <div >
+            <input id="restPort" type="text" placeholder="8889" />
+            <button id='addRestBtn' type="button">Add</button>
+            <button id='startRestBtn' type="button">Start</button>
+            <button id='stopRestBtn' type="button">Stop</button>
+          </div>
+          <div>
+           
+          </div>
+          <ul class="rest-address-list">
+            <li>
+                <input  placeholder="/api/v1/login"></input>
+            </li>
+            <!-- 添加更多地址 -->
+          </ul>
+        </div>   
+        <div class="rest-right">
+          <div class="rest-right-top">
+            <span>Request URL:</span>
+            <span id="requestUrl"></span>
+          </div>
+          <div class="rest-right-bottom">
+            <!-- 显示接收到的详细信息 -->
+          </div>
+        </div>
+      </div>
+    </div>
+      </div>
+    </div>
+
+    <script src="./renderer.js"></script>
+    <script>
+      const craneLink = document.getElementById('craneLink');
+      const restLink = document.getElementById('restLink');
+      const cranePage = document.getElementById('cranePage');
+      const restPage = document.getElementById('restPage');
+
+      craneLink.addEventListener('click', function(event) {
+        event.preventDefault(); // 防止链接跳转
+        cranePage.style.display = 'block';
+        restPage.style.display = 'none';
+      });
+
+    //   restLink.addEventListener('click', function(event) {
+    //     event.preventDefault(); // 防止链接跳转
+    //     cranePage.style.display = 'none';
+    //     restPage.style.display = 'block';
+    //   });
+    </script>
+  </body>
+</html>
